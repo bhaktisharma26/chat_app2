@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import {
   Box,
+  Flex,
   FormControl,
   IconButton,
   Input,
@@ -10,7 +11,7 @@ import {
   Toast,
   useToast,
 } from "@chakra-ui/react";
-import { ArrowBackIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, AttachmentIcon } from "@chakra-ui/icons";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import ProfileModal from "./Authentication/miscellanous/ProfileModal";
 import UpdateGroupChatModal from "./Authentication/miscellanous/UpdateGroupChatModal";
@@ -39,7 +40,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     },
   };
   const toast = useToast();
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const { user, selectedChat, setSelectedChat, notification, setNotification } =
+    ChatState();
   const [socketConnected, setSocketConnected] = useState(false);
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -124,7 +126,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
-        //give notif
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
+          setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessages([...messages, newMessageReceived]);
       }
@@ -221,13 +226,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               ) : (
                 <></>
               )}
-              <Input
-                variant={"filled"}
-                bg={"#E0E0E0"}
-                placeholder="Enter a message"
-                onChange={typingHandler}
-                value={newMessage}
-              />
+              <Flex alignItems="center">
+                <Input
+                  variant={"filled"}
+                  bg={"#E0E0E0"}
+                  placeholder="Enter a message"
+                  onChange={typingHandler}
+                  value={newMessage}
+                />
+                <AttachmentIcon width={30} />
+              </Flex>
             </FormControl>
           </Box>
         </>
